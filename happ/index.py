@@ -9,7 +9,7 @@ import hashlib
 def register_routes(app):
     @app.route("/")
     def index():
-        return "Chào mừng bạn đến với trang chủ đặt lịch khám!"
+        return render_template('index.html')
 
 
 
