@@ -1,0 +1,320 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Phòng khám OU{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- User info -->
+    <div class="card">
+      <div class="user-row">
+        <div class="avatar">NV</div>
+        <div>
+          <div class="user-name">Nguyễn Văn A</div>
+          <div class="user-role">Bệnh nhân</div>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="info-row">
+        <span class="label">Mã bệnh nhân</span>
+        <span class="val">BN-00412</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Lịch hôm nay</span>
+        <span class="val">1 / 2 lịch</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Trạng thái</span>
+        <span class="badge badge-ok">Hoạt động</span>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <div class="card" style="padding: .8rem;">
+      <div class="card-title" style="padding: 0 .4rem;">Chức năng</div>
+      <a class="menu-item active" href="#">
+        <div class="menu-dot"></div> Đặt lịch khám
+      </a>
+      <a class="menu-item" href="#">
+        <div class="menu-dot"></div> Lịch của tôi
+      </a>
+      <a class="menu-item" href="#">
+        <div class="menu-dot"></div> Hủy / Đổi lịch
+      </a>
+      <a class="menu-item" href="#">
+        <div class="menu-dot"></div> Hồ sơ bệnh nhân
+      </a>
+    </div>
+
+    <!-- Notice -->
+    <div class="notice notice-warn">
+      <div>
+        <strong>Lưu ý:</strong> Lịch chỉ được hủy trước 1 giờ. Hủy quá 3 lần/tuần sẽ bị tạm khóa 24 giờ.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Lịch hôm nay</div>
+        <div class="stat-val">1</div>
+        <div class="stat-sub">Còn 1 slot khả dụng</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tháng này</div>
+        <div class="stat-val">7</div>
+        <div class="stat-sub">Đã khám 7 lượt</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Lịch sắp tới</div>
+        <div class="stat-val">2</div>
+        <div class="stat-sub">Trong 7 ngày tới</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Lần hủy tuần này</div>
+        <div class="stat-val">1</div>
+        <div class="stat-sub">Còn 2 lần</div>
+      </div>
+    </div>
+
+    <!-- Booking form -->
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active">Đặt lịch mới</div>
+        <div class="tab">Lịch của tôi</div>
+        <div class="tab">Lịch sử khám</div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="required">Chuyên khoa</label>
+          <select>
+            <option value="">-- Chọn chuyên khoa --</option>
+            <option>Nội tổng quát</option>
+            <option>Tim mạch</option>
+            <option>Da liễu</option>
+            <option>Tai mũi họng</option>
+            <option>Thần kinh</option>
+            <option>Xương khớp</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Bác sĩ</label>
+          <select>
+            <option value="">-- Chọn bác sĩ --</option>
+            <option>BS. Trần Minh Khoa</option>
+            <option>BS. Lê Thị Hương</option>
+            <option>BS. Nguyễn Đức Thịnh</option>
+            <option>BS. Phạm Thu Trang</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Ngày khám</label>
+          <input type="date" value="2025-05-12">
+        </div>
+
+        <div class="form-group">
+          <label>Loại khám</label>
+          <select>
+            <option>Khám lần đầu</option>
+            <option>Tái khám</option>
+            <option>Khám theo hẹn</option>
+          </select>
+        </div>
+
+        <!-- Time slots full width -->
+        <div class="form-group full">
+          <label class="required">Khung giờ (08:00 – 17:00)</label>
+          <div class="slots-grid">
+            <div class="slot booked">08:00</div>
+            <div class="slot booked">08:30</div>
+            <div class="slot">09:00</div>
+            <div class="slot">09:30</div>
+            <div class="slot selected">10:00</div>
+            <div class="slot">10:30</div>
+            <div class="slot">11:00</div>
+            <div class="slot booked">11:30</div>
+            <div class="slot">13:00</div>
+            <div class="slot">13:30</div>
+            <div class="slot">14:00</div>
+            <div class="slot booked">14:30</div>
+            <div class="slot">15:00</div>
+            <div class="slot">15:30</div>
+            <div class="slot booked">16:00</div>
+            <div class="slot">16:30</div>
+          </div>
+          <div style="display:flex;gap:1.5rem;margin-top:8px;font-size:11px;color:var(--text-hint);">
+            <span>&#9632; Đã chọn</span>
+            <span style="opacity:.5">&#9632; Đã đặt</span>
+            <span style="color:var(--border-strong)">&#9632; Trống</span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>Lý do khám / triệu chứng</label>
+          <textarea placeholder="Mô tả ngắn triệu chứng hoặc lý do đặt lịch..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="notice notice-ok" style="margin: .75rem 0;">
+        Lịch hợp lệ: <strong>10:00 – 10:30, 12/05/2025</strong> &nbsp;·&nbsp; BS. Trần Minh Khoa &nbsp;·&nbsp; Nội tổng quát
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary">Đặt lại</button>
+        <button class="btn btn-primary">Xác nhận đặt lịch</button>
+      </div>
+
+    </div>
+
+    <!-- Upcoming appointments table -->
+    <div class="card">
+      <div class="table-header">
+        <div>
+          <div class="card-title" style="margin-bottom:2px;">Lịch sắp tới</div>
+        </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Tìm kiếm...">
+          <select class="filter-select">
+            <option>Tất cả trạng thái</option>
+            <option>Chờ xác nhận</option>
+            <option>Đã xác nhận</option>
+            <option>Đã hoàn thành</option>
+            <option>Đã hủy</option>
+          </select>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ngày giờ</th>
+            <th>Bác sĩ</th>
+            <th>Chuyên khoa</th>
+            <th>Loại</th>
+            <th>Trạng thái</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight:500">10:00 – 10:30</div>
+              <div style="font-size:12px;color:var(--text-muted)">12/05/2025</div>
+            </td>
+            <td>BS. Trần Minh Khoa</td>
+            <td>Nội tổng quát</td>
+            <td>Tái khám</td>
+            <td><span class="status-pill status-confirmed">Đã xác nhận</span></td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="action-btn">Chi tiết</button>
+                <button class="action-btn cancel">Hủy</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:500">14:00 – 14:30</div>
+              <div style="font-size:12px;color:var(--text-muted)">15/05/2025</div>
+            </td>
+            <td>BS. Lê Thị Hương</td>
+            <td>Da liễu</td>
+            <td>Khám lần đầu</td>
+            <td><span class="status-pill status-pending">Chờ xác nhận</span></td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="action-btn">Chi tiết</button>
+                <button class="action-btn cancel">Hủy</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:500">09:00 – 09:30</div>
+              <div style="font-size:12px;color:var(--text-muted)">02/05/2025</div>
+            </td>
+            <td>BS. Nguyễn Đức Thịnh</td>
+            <td>Tim mạch</td>
+            <td>Khám theo hẹn</td>
+            <td><span class="status-pill status-completed">Đã hoàn thành</span></td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="action-btn">Chi tiết</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight:500">11:00 – 11:30</div>
+              <div style="font-size:12px;color:var(--text-muted)">28/04/2025</div>
+            </td>
+            <td>BS. Phạm Thu Trang</td>
+            <td>Thần kinh</td>
+            <td>Tái khám</td>
+            <td><span class="status-pill status-cancelled">Đã hủy</span></td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="action-btn">Chi tiết</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Doctors -->
+    <div class="card">
+      <div class="card-title">Bác sĩ hôm nay</div>
+      <div class="doctor-grid">
+        <div class="doctor-item">
+          <div class="doc-avatar">TK</div>
+          <div>
+            <div class="doc-name">BS. Trần Minh Khoa</div>
+            <div class="doc-spec">Nội tổng quát</div>
+            <div class="doc-slots">Còn 8 slot</div>
+          </div>
+        </div>
+        <div class="doctor-item">
+          <div class="doc-avatar">LH</div>
+          <div>
+            <div class="doc-name">BS. Lê Thị Hương</div>
+            <div class="doc-spec">Da liễu</div>
+            <div class="doc-slots">Còn 3 slot</div>
+          </div>
+        </div>
+        <div class="doctor-item">
+          <div class="doc-avatar">NT</div>
+          <div>
+            <div class="doc-name">BS. Nguyễn Đức Thịnh</div>
+            <div class="doc-spec">Tim mạch</div>
+            <div class="doc-slots full">Hết slot (20/20)</div>
+          </div>
+        </div>
+        <div class="doctor-item unavailable">
+          <div class="doc-avatar" style="background:var(--surface-alt);color:var(--text-hint)">PT</div>
+          <div>
+            <div class="doc-name">BS. Phạm Thu Trang</div>
+            <div class="doc-spec">Thần kinh</div>
+            <div class="doc-slots full">Đang nghỉ phép</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+{% endblock %}
