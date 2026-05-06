@@ -31,6 +31,35 @@
     line-height: 1.6;
     min-height: 100vh;
   }
+.hero {
+    /* Đã bỏ radial-gradient đi, chỉ giữ lại ảnh gốc cho khối kính mờ phát huy tác dụng */
+    background-image: url('https://res.cloudinary.com/dblj5qcox/image/upload/v1778075573/ssSi1_xivymx.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    min-height: 550px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Đây là class tạo khối kính mờ (Blur Block) */
+.hero-content {
+    background: rgba(255, 255, 255, 0.25); /* Nền trắng trong suốt 65% */
+    backdrop-filter: blur(10px); /* Làm mờ ảnh nền phía sau */
+    -webkit-backdrop-filter: blur(10px); /* Hỗ trợ cho trình duyệt Safari */
+    padding: 3rem 4rem;
+    border-radius: 20px; /* Bo góc to giống mẫu */
+    border: 1px solid rgba(255, 255, 255, 0.8); /* Đường viền trắng mỏng tạo cảm giác mặt kính */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ giúp khối này nổi lên */
+    max-width: 850px;
+    width: 100%;
+}
 
   /* ---- TOP NAV ---- */
   header {
@@ -199,6 +228,7 @@
   input[type="text"],
   input[type="date"],
   input[type="time"],
+  input[type="password"],
   select,
   textarea {
     font-family: 'Be Vietnam Pro', sans-serif;
@@ -294,11 +324,11 @@
   }
   .btn-secondary:hover {background-color: #e2e6ea !important;}
   .btn-primary {
-    background-color: #0e2a4d !important;
-    border-color: #0e2a4d !important;
+    background-color: #2D5F4F !important;
+    border-color: #2D5F4F !important;
     color: #fff !important;
   }
-  .btn-primary:hover { background-color: #081a30 !important; border-color: #081a30 !important; }
+  .btn-primary:hover { background-color: #c4a352 !important; border-color: #c4a352 !important; }
 
   /* ---- APPOINTMENTS TABLE ---- */
   .table-header {
