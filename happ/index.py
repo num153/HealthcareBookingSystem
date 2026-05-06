@@ -11,7 +11,14 @@ def register_routes(app):
     def index():
         return render_template('index.html')
 
+    @app.route("/dashboard")
+    def dashboard():
+        # Sau này có thể thêm @login_required ở đây để bắt buộc đăng nhập
+        return render_template('dashboard.html')
 
+    @app.route('/register', methods=['get', 'post'])
+    def register_view():
+        return render_template('layout/register.html')
 
     @app.route('/login', methods=['get', 'post'])
     def login_view():
