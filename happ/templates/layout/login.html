@@ -2,6 +2,16 @@
 {% block title %}Đăng nhập{% endblock %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 <div class="wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
     <div class="card" style="width: 100%; max-width: 400px; padding: 2rem;">
         <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent);">Đăng nhập</h2>
@@ -13,7 +23,7 @@
         </div>
         {% endif %}
 
-        <form method="post" action="/login" style="display: flex; flex-direction: column; gap: 1rem;">
+        <form method="post" action="{{ request.full_path }}" style="display: flex; flex-direction: column; gap: 1rem;">
             <div class="form-group">
                 <label>Tên đăng nhập</label>
                 <input type="text" name="username" placeholder="Nhập tên đăng nhập..." required>

@@ -1,9 +1,11 @@
-from flask import render_template, request, redirect, url_for
-from flask_login import login_user, logout_user
+from flask import render_template, request, redirect, url_for, flash
+from flask_login import login_user, logout_user, login_required
 from happ import app, login
 from happ.models import User, UserRole
 from happ import dao
+from happ.dao import add_user
 import hashlib
+from datetime import datetime, timedelta, date
 
 
 def register_routes(app):
@@ -12,13 +14,93 @@ def register_routes(app):
         return render_template('index.html')
 
     @app.route("/dashboard")
+    @login_required
     def dashboard():
-        # Sau này có thể thêm @login_required ở đây để bắt buộc đăng nhập
-        return render_template('dashboard.html')
+    # Sau này có thể thêm @login_required ở đây để bắt buộc đăng nhập
+    # Load dữ liệu cho Dashboard
+        doctors = dao.load_doctors()
+        # Lấy danh sách lịch hẹn của người dùng hiện tại để hiển thị ở bảng
+        my_appointments = dao.get_appointments_by_user(user_id=current_user.id)
 
-    @app.route('/register', methods=['get', 'post'])
+        # Các giá trị giới hạn cho input date
+        today = date.today().isoformat()
+        max_date = (date.today() + timedelta(days=30)).isoformat()
+
+        return render_template('dashboard.html',
+                               doctors=doctors,
+                               my_appointments=my_appointments,
+                               today=today,
+                               max_date=max_date)
+        # return render_template('dashboard.html')
+
+    @app.route('/dashboard', methods=['POST'])
+    @login_required
+    def book_process():
+        if dao.is_user_blocked(current_user):
+            flash("Tài khoản của bạn đang bị hạn chế đặt lịch do hủy quá 3 lần/tuần!", "danger")
+            return redirect(url_for('dashboard'))
+        from datetime import datetime
+        data = request.form
+
+        try:
+            appt_date = datetime.strptime(data.get('date'), '%Y-%m-%d').date()
+            appt_time = datetime.strptime(data.get('time'), '%H:%M').time()
+            doctor_id = int(data.get('doctor_id'))
+        except (ValueError, TypeError):
+            flash('Dữ liệu ngày giờ không hợp lệ.', 'danger')
+            return redirect(url_for('dashboard'))
+
+        # Gọi DAO để xử lý ràng buộc (20 khách/ngày, nghỉ phép...)
+        appt, err = dao.add_appointment(
+            patient_id=current_user.id,
+            doctor_id=doctor_id,
+            appt_date=appt_date,
+            appt_time=appt_time
+        )
+
+        if err:
+            flash(err, 'danger')  # err là thông báo lỗi từ DAO
+            return redirect(url_for('dashboard'))
+
+        flash('Đặt lịch thành công!', 'success')
+        return redirect(url_for('dashboard'))
+
+
+
+    @app.route('/register')
     def register_view():
         return render_template('layout/register.html')
+
+    @app.route('/register', methods=['post'])
+    def register_process():
+        err_msg = ''
+        if request.method == 'POST':
+            data = request.form
+            password = data.get('password')
+            confirm = data.get('confirm_password')
+
+            if password == confirm:
+                try:
+                    # Gọi hàm từ dao.py
+                    dao.add_user(name=data.get('name'),
+                                 username=data.get('username'),
+                                 password=password,
+                                 avatar=request.files.get('avatar'))
+                    return redirect('/login')
+                except Exception as ex:
+                    err_msg = str(ex)  # Hiển thị lỗi từ dao (ví dụ: Username đã tồn tại)
+            else:
+                err_msg = 'Mật khẩu không khớp!'
+
+        return render_template('layout/register.html', err_msg=err_msg)
+
+    @app.route('/dashboard/<int:appt_id>/cancel', methods=['POST'])
+    @login_required
+    def cancel_appointment(appt_id):
+        ok, msg = dao.cancel_appointment(appt_id=appt_id, current_user=current_user)
+        return redirect(url_for('dashboard'))
+
+
 
     @app.route('/login', methods=['get', 'post'])
     def login_view():
@@ -33,6 +115,12 @@ def register_routes(app):
             if user:
                 login_user(user=user)
 
+                next_page = request.args.get('next')
+
+                # 2. Nếu có 'next', ưu tiên quay lại trang đó ngay
+                if next_page:
+                    return redirect(next_page)
+
                 # KIỂM TRA ROLE ĐỂ ĐIỀU HƯỚNG
                 if user.user_role == UserRole.ADMIN:
                     return redirect('/admin')  # Trang mặc định của Flask-Admin
@@ -43,6 +131,34 @@ def register_routes(app):
 
         return render_template('layout/login.html', err_msg=err_msg)
 
+@app.route('/logout')
+def logout_process():
+    logout_user()
+    return redirect('/login')
+
+
+# ══════════════════════════════════════════════════════════════
+#  ĐẶT LỊCH KHÁM
+# ══════════════════════════════════════════════════════════════
+
+# @app.route('/appointments/book')
+# @login_required
+# def book_view():
+#     from datetime import date, timedelta
+#     doctors = dao.load_doctors()
+#     today = date.today().isoformat()
+#     max_date = (date.today() + timedelta(days=30)).isoformat()
+#     return render_template('appointment/book.html', doctors=doctors, today=today, max_date=max_date)
+
+
+
+
+
+# ══════════════════════════════════════════════════════════════
+#  HUỶ LỊCH KHÁM
+# ══════════════════════════════════════════════════════════════
+
+
 
 @login.user_loader
 def load_user(user_id):
@@ -50,5 +166,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 if __name__ == '__main__':
+    from happ.admin import *
     register_routes(app)
     app.run(debug=True)
