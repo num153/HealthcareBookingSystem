@@ -3,7 +3,86 @@
 {% block title %}Phòng khám OU{% endblock %}
 
 {% block content %}
+
+
+<table>
+    <thead>
+      <tr>
+        <th>Ngày giờ</th>
+        <th>Bác sĩ</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appt in my_appointments %}
+      <tr>
+        <td>
+          <div style="font-weight:500">{{ appt.slot_time.strftime('%H:%M') }}</div>
+          <div style="font-size:12px;color:var(--text-muted)">{{ appt.app_date.strftime('%d/%m/%Y') }}</div>
+        </td>
+        <td>{{ appt.doctor.name }}</td>
+        <td>
+            <span class="status-pill status-{{ appt.status.name.lower() }}">
+                {{ appt.status.name }}
+            </span>
+        </td>
+        <td>
+          {% if appt.status.name == 'CONFIRMED' %}
+          <form method="POST" action="{{ url_for('cancel_appointment', appt_id=appt.id) }}">
+              <button type="submit" class="action-btn cancel" onclick="return confirm('Bạn có chắc muốn hủy?')">Hủy</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
 <div class="wrapper">
+
+
+
+  <div class="card">
+  <div class="tabs">
+    <div class="tab active">Đặt lịch mới</div>
+    <a href="#my-appointments" class="tab" style="text-decoration: none; color: inherit;">Lịch của tôi</a>
+  </div>
+
+  <form method="POST" action="{{ url_for('book_process') }}">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="required">Bác sĩ</label>
+        <select name="doctor_id" required>
+          <option value="">-- Chọn bác sĩ --</option>
+          {% for d in doctors %}
+            <option value="{{ d.id }}">{{ d.name }} - {{ d.specialty }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Ngày khám</label>
+        <input type="date" name="date" value="{{ today }}" min="{{ today }}" max="{{ max_date }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Giờ khám</label>
+        <input type="time" name="time" min="08:00" max="17:00" required>
+      </div>
+
+      <div class="form-group">
+        <label>Ghi chú / Triệu chứng</label>
+        <textarea name="note" placeholder="Mô tả ngắn triệu chứng..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="reset" class="btn btn-secondary">Đặt lại</button>
+      <button type="submit" class="btn btn-primary">Xác nhận đặt lịch</button>
+    </div>
+  </form>
+</div>
+
+  <!--=============================================================================================-->
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -13,8 +92,8 @@
       <div class="user-row">
         <div class="avatar">NV</div>
         <div>
-          <div class="user-name">Nguyễn Văn A</div>
-          <div class="user-role">Bệnh nhân</div>
+          <div class="user-name">{{ current_user.name }}</div>
+          <div class="user-role">{% if current_user.user_role.name == 'PATIENT' %}Bệnh nhân{% else %}Quản trị viên{% endif %}</div>
         </div>
       </div>
       <hr class="divider">
@@ -29,6 +108,10 @@
       <div class="info-row">
         <span class="label">Trạng thái</span>
         <span class="badge badge-ok">Hoạt động</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Hủy tuần này</span>
+        <span class="val" style="color: var(--danger);">{{ current_user.cancel_count }} (Còn {{ 3 - current_user.cancel_count }} lần)</span>
       </div>
     </div>
 
@@ -60,31 +143,6 @@
 
   <!-- MAIN -->
   <main class="main">
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Lịch hôm nay</div>
-        <div class="stat-val">1</div>
-        <div class="stat-sub">Còn 1 slot khả dụng</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Tháng này</div>
-        <div class="stat-val">7</div>
-        <div class="stat-sub">Đã khám 7 lượt</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Lịch sắp tới</div>
-        <div class="stat-val">2</div>
-        <div class="stat-sub">Trong 7 ngày tới</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Lần hủy tuần này</div>
-        <div class="stat-val">1</div>
-        <div class="stat-sub">Còn 2 lần</div>
-      </div>
-    </div>
-
     <!-- Booking form -->
     <div class="card">
       <div class="tabs">
@@ -188,13 +246,12 @@
     </div>
 
     <!-- Upcoming appointments table -->
-    <div class="card">
+    <div class="card" id="lich-sap-toi">
       <div class="table-header">
         <div>
           <div class="card-title" style="margin-bottom:2px;">Lịch sắp tới</div>
         </div>
         <div class="search-bar">
-          <input type="text" placeholder="Tìm kiếm...">
           <select class="filter-select">
             <option>Tất cả trạng thái</option>
             <option>Chờ xác nhận</option>
@@ -217,68 +274,44 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <div style="font-weight:500">10:00 – 10:20</div>
-              <div style="font-size:12px;color:var(--text-muted)">12/05/2025</div>
-            </td>
-            <td>BS. Trần Minh Khoa</td>
-            <td>Nội tổng quát</td>
-            <td>Tái khám</td>
-            <td><span class="status-pill status-confirmed">Đã xác nhận</span></td>
-            <td>
-              <div style="display:flex;gap:6px">
-                <button class="action-btn">Chi tiết</button>
-                <button class="action-btn cancel">Hủy</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:500">14:00 – 14:20</div>
-              <div style="font-size:12px;color:var(--text-muted)">15/05/2025</div>
-            </td>
-            <td>BS. Lê Thị Hương</td>
-            <td>Da liễu</td>
-            <td>Khám lần đầu</td>
-            <td><span class="status-pill status-pending">Chờ xác nhận</span></td>
-            <td>
-              <div style="display:flex;gap:6px">
-                <button class="action-btn">Chi tiết</button>
-                <button class="action-btn cancel">Hủy</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:500">09:00 – 09:20</div>
-              <div style="font-size:12px;color:var(--text-muted)">02/05/2025</div>
-            </td>
-            <td>BS. Nguyễn Đức Thịnh</td>
-            <td>Tim mạch</td>
-            <td>Khám theo hẹn</td>
-            <td><span class="status-pill status-completed">Đã hoàn thành</span></td>
-            <td>
-              <div style="display:flex;gap:6px">
-                <button class="action-btn">Chi tiết</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="font-weight:500">11:00 – 11:20</div>
-              <div style="font-size:12px;color:var(--text-muted)">28/04/2025</div>
-            </td>
-            <td>BS. Phạm Thu Trang</td>
-            <td>Thần kinh</td>
-            <td>Tái khám</td>
-            <td><span class="status-pill status-cancelled">Đã hủy</span></td>
-            <td>
-              <div style="display:flex;gap:6px">
-                <button class="action-btn">Chi tiết</button>
-              </div>
-            </td>
-          </tr>
+          {% if appointments %}
+            {% for app in appointments %}
+            <tr>
+              <td>
+                <div style="font-weight:500">{{ app.slot_time.strftime('%H:%M') }}</div>
+                <div style="font-size:12px;color:var(--text-muted)">{{ app.app_date.strftime('%d/%m/%Y') }}</div>
+              </td>
+              <td>{{ app.doctor.name }}</td>
+              <td>{{ app.doctor.specialty }}</td>
+              <td>Khám bệnh</td>
+              <td>
+                {% if app.status.name == 'CONFIRMED' %}
+                  <span class="status-pill status-confirmed">Đã xác nhận</span>
+                {% elif app.status.name == 'COMPLETED' %}
+                  <span class="status-pill status-completed">Đã khám</span>
+                {% elif app.status.name == 'CANCELLED' %}
+                  <span class="status-pill status-cancelled">Đã hủy</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="action-btn">Chi tiết</button>
+
+                  {% if app.status.name == 'CONFIRMED' %}
+                  <button class="action-btn cancel" data-id="{{ app.id }}" onclick="cancelApp(this)">Hủy</button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
+                <i class="bi bi-calendar-x" style="font-size: 2rem; color: var(--border-strong); display: block; margin-bottom: 10px;"></i>
+                Chưa có lịch nào được đặt.
+              </td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
     </div>
