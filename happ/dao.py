@@ -182,7 +182,7 @@ def add_appointment(patient_id, doctor_id, appt_date, appt_time):
         return None, 'Bác sĩ đang nghỉ phép vào ngày này.'
 
     # 8. Bác sĩ không vượt 20 lịch/ngày
-    if count_doctor_appointments_on(doctor_id, appt_date) >= 20:
+    if count_doctor_appointments_gon(doctor_id, appt_date) >= 20:
         return None, 'Bác sĩ đã đầy lịch trong ngày này (tối đa 20 lịch).'
 
     # 9. Tài khoản không bị block

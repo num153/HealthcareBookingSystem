@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import render_template, request, redirect, url_for, jsonify,flash
 from flask_login import login_user, logout_user, login_required, current_user
 from happ import app, login, admin
 from happ.models import User, UserRole
@@ -27,11 +27,19 @@ def register_routes(app):
         today = date.today().isoformat()
         max_date = (date.today() + timedelta(days=30)).isoformat()
 
+        # Đếm số lịch hôm nay còn hiệu lực (không tính đã hủy)
+        from happ.models import AppointmentStatus
+        today_count = sum(
+            1 for a in my_appointments
+            if a.app_date == date.today() and a.status != AppointmentStatus.CANCELLED
+        )
+
         return render_template('dashboard.html',
                                doctors=doctors,
                                my_appointments=my_appointments,
                                today=today,
-                               max_date=max_date)
+                               max_date=max_date,
+                               today_count=today_count)
         # return render_template('dashboard.html')
 
     @app.route('/dashboard', methods=['POST'])
@@ -99,6 +107,7 @@ def register_routes(app):
     @login_required
     def cancel_appointment(appt_id):
         ok, msg = dao.cancel_appointment(appt_id=appt_id, current_user=current_user)
+        flash(msg, 'success' if ok else 'danger')
         return redirect(url_for('dashboard'))
 
 
