@@ -1,7 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_admin import Admin
 import cloudinary
+
+
 
 app = Flask(__name__)
 app.secret_key = '&(^&*^&*^U*HJBJKHJLHKJHK&*%^&57869856858'
@@ -10,6 +13,12 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 db = SQLAlchemy(app=app)
 
 login = LoginManager(app=app)
+login.login_view = 'login_view'
+
+# 2. Tùy chỉnh thông báo sẽ hiển thị khi bị chặn
+login.login_message = "Vui lòng đăng nhập để thực hiện chức năng đặt lịch khám!"
+login.login_message_category = "info" # Loại thông báo (bootstrap class)
+
 
 
 cloudinary.config(cloud_name='dref2n2l6',

@@ -2,18 +2,28 @@
 {% block title %}Đăng nhập{% endblock %}
 
 {% block content %}
+
 <div class="wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
     <div class="card" style="width: 100%; max-width: 400px; padding: 2rem;">
         <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent);">Đăng nhập</h2>
 
-        <!-- Hiển thị thông báo lỗi nếu nhập sai -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+            <div class="notice notice-warn" style="color: #7A4F00; background-color: #FDF6EA; border: 1px solid #E8CF9C; margin-bottom: 1rem; text-align: center;">
+                {{ message }}
+            </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         {% if err_msg %}
         <div class="notice notice-danger" style="color: var(--danger); margin-bottom: 1rem; text-align: center;">
             {{ err_msg }}
         </div>
         {% endif %}
 
-        <form method="post" action="/login" style="display: flex; flex-direction: column; gap: 1rem;">
+        <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
             <div class="form-group">
                 <label>Tên đăng nhập</label>
                 <input type="text" name="username" placeholder="Nhập tên đăng nhập..." required>
